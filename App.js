@@ -1,45 +1,99 @@
-import React, { useState } from "react";
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, Button, View, TextInput } from "react-native";
+import React, { useState } from "react";
+import {
+  View,
+  StyleSheet,
+  FlatList,
+  Alert,
+  Text,
+  TextInput,
+  Platform,
+  KeyboardAvoidingView,
+  TouchableOpacity,
+  Keyboard,
+} from "react-native";
+import Task from "./components/Task";
 
 export default function App() {
-   const [count, setCount] = useState(0);
-   const [text, setText] = useState("");
+  const [task, setTask] = useState();
+  const [taskItems, setTaskItems] = useState([]);
+
+  const addTask = () => {
+    Keyboard.dismiss();
+    setTaskItems([...taskItems, task]);
+    setTask(null);    
+  }
+  const completeTask = (index) => {
+    let itemsCopy = [...taskItems];
+    itemsCopy.splice(index, 1);
+    setTaskItems(itemsCopy);
+  }
   return (
     <View style={styles.container}>
-      <Text>Hello World React Native</Text>
-
-      <Button
-        style={styles.component}
-        onPress={() => setCount(count + 1)}
-        title="Click me!"
-      />
-
-      <Text>You clicked {count} times</Text>
-      <TextInput
-        style={{ height: 40 }}
-        placeholder="Add two numbers..."
-        onChangeText={(newText) => setText(Calc(newText))}
-        defaultValue={text}
-      />
-      <Text>{text}</Text>
-      <StatusBar style="auto" />
+      <View style={styles.tasksWrapper}>
+        <Text style={styles.sectionTitle}>Today's Tasks</Text>
+        <View style={styles.items}>
+          {
+            taskItems.map((item, index) => {
+              return (
+              <TouchableOpacity key={index} onPress={() => completeTask(index)}>
+                 <Task key={index} text={item} />
+              </TouchableOpacity>
+              )
+            })
+          }
+         
+        </View>
+      </View>
+      {/* Add a task*/}
+      <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.writeTaskWrapper} >
+        <TextInput style={styles.input} placeholder={"Add a task..."} onChangeText={text => setTask(text)} value={task}/>
+        <TouchableOpacity onPress={() => addTask()}>
+          <View style={styles.addWrapper}>
+            <Text style={styles.addText} >+</Text>
+          </View>
+        </TouchableOpacity>
+      </KeyboardAvoidingView>
     </View>
   );
-}
-function Calc(num){
-  return (num)*(num);
-
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,    
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
+    flex: 1,
+    backgroundColor: "#E8EAED",
   },
-  component: {
-    padding: 10,
-  }
+  items: {
+    marginTop: 30,
+  },
+  tasksWrapper: {
+    paddingTop: 80,
+    paddingHorizontal: 20,
+  },
+  sectionTitle: {},
+  writeTaskWrapper: {
+    position: "absolute",
+    bottom: 60,
+    width: "100%",
+    flexDirection: "row",
+    justifyContent: "space-around",
+    alignItems: "center",
+  },
+  addWrapper: {
+    width: 60,
+    height: 60,
+    backgroundColor: "#FFF",
+    borderRadius: 60,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  addText: {},
+  input: {
+    paddingVertical: 15,
+    paddingHorizontal: 15,
+    backgroundColor: "#FFF",
+    borderRadius: 60,
+    borderColor: "#C0C0C0",
+    width: 250,
+  },
 });
